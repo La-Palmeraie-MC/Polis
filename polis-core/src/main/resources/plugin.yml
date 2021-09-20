@@ -1,0 +1,5 @@
+name: Polis
+version: @version@
+authors: [PoC4, Neozaelks]
+api-version: 1.17
+main: fr.lapalmeraiemc.polis.Polis
