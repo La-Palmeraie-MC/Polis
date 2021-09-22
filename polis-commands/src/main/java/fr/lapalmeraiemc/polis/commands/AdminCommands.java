@@ -7,6 +7,7 @@ import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import net.kyori.adventure.identity.Identity;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
@@ -17,8 +18,8 @@ import java.util.logging.Logger;
 @CommandPermission("polis.admin")
 public class AdminCommands extends PolisBaseCommand {
 
-  public AdminCommands(Plugin plugin, Logger logger, Config config, Localizer localizer) {
-    super(plugin, logger, config, localizer);
+  public AdminCommands(Plugin plugin, Logger logger, Config config, Localizer localizer, Economy economy) {
+    super(plugin, logger, config, localizer, economy);
   }
 
   @Subcommand("reload")

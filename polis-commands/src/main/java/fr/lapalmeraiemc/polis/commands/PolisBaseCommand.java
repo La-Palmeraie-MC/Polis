@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.Plugin;
 
 import java.util.logging.Logger;
@@ -21,5 +22,6 @@ public abstract class PolisBaseCommand extends BaseCommand {
   Logger    logger;
   Config    config;
   Localizer localizer;
+  Economy   economy;
 
 }

@@ -6,7 +6,9 @@ import fr.lapalmeraiemc.polis.commands.PolisBaseCommand;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import fr.lapalmeraiemc.polis.utils.ReflectionUtils;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Set;
@@ -18,12 +20,14 @@ public class Polis extends JavaPlugin {
   private Config              config;
   private Localizer           localizer;
   private PaperCommandManager commandManager = null;
+  private Economy             economy;
 
   @Override
   public void onEnable() {
     config = new Config(this);
     localizer = new Localizer(this);
 
+    initializeEconomy();
     initializeCommands();
 
     getLogger().info("Successfully enabled!");
@@ -54,7 +58,8 @@ public class Polis extends JavaPlugin {
 
     final Set<PolisBaseCommand> commands = ReflectionUtils.getClassInstancesExtending(PolisBaseCommand.class, "fr.lapalmeraiemc.polis.commands",
                                                                                       Plugin.class, this, Logger.class, getLogger(),
-                                                                                      Config.class, config, Localizer.class, localizer);
+                                                                                      Config.class, config, Localizer.class, localizer, Economy.class,
+                                                                                      economy);
 
     commands.forEach(commandManager::registerCommand);
 
@@ -62,6 +67,18 @@ public class Polis extends JavaPlugin {
       getLogger().warning(String.format("An error occured while executing command: %s", command.getName()));
       return false;
     });
+  }
+
+  private void initializeEconomy() {
+    if (!getServer().getPluginManager().isPluginEnabled("Vault"))
+      throw new RuntimeException("Vault is needed to use this plugin.");
+
+    final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
+
+    if (economyProvider == null)
+      throw new RuntimeException("An error occured while getting Vault.");
+
+    economy = economyProvider.getProvider();
   }
 
 }
