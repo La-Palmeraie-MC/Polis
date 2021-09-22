@@ -1,26 +1,23 @@
 package fr.lapalmeraiemc.polis.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-
+@NoArgsConstructor
 @ToString
+@Getter
+@Setter
 public class City extends BaseModel {
-
-  public City(@NotNull final String name, @NotNull final String tag) {
-    this.name = name;
-    this.tag = tag;
-  }
-
-  @Getter
-  @Setter
   private String name;
-
-  @Getter
-  @Setter
   private String tag;
-
+  private Long                           chunkKeyOrigin;
+  private final Map<Long, ChunkLocation> chunksClaimed = new HashMap<>();
+  private final Map<UUID, Member>        memberList    = new HashMap<>();
+  private Member owner;
 }
