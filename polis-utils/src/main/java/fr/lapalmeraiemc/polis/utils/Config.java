@@ -7,30 +7,27 @@ import org.jetbrains.annotations.NotNull;
 
 public class Config {
 
-  private final Plugin plugin;
-
-  private final FileManager       file;
-  private       FileConfiguration fileContent;
+  private final FileManager       configFile;
+  private       FileConfiguration configContent;
 
   public Config(@NotNull final Plugin plugin) {
-    this.plugin = plugin;
-
-    file = new FileManager(plugin, "config.yml");
-    file.saveDefaults();
-    fileContent = file.getContent();
+    configFile = new FileManager(plugin, "config.yml");
+    configFile.saveDefaults();
+    configContent = configFile.getContent();
   }
 
   public void reload() {
-    file.reloadContent();
-    fileContent = file.getContent();
+    configFile.saveDefaults();
+    configFile.reloadContent();
+    configContent = configFile.getContent();
   }
 
   public int getWildernessChunks() {
-    return fileContent.getInt("city.wilderness-between-cities");
+    return configContent.getInt("city.wilderness-between-cities");
   }
 
   public int getCityCreationFee() {
-    return fileContent.getInt("city.creation-fee");
+    return configContent.getInt("city.creation-fee");
   }
 
 }

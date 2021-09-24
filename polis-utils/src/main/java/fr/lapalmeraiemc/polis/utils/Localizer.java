@@ -34,6 +34,7 @@ public class Localizer {
 
   public void reload() {
     messages.clear();
+    messagesFile.saveDefaults();
     messagesFile.reloadContent();
 
     final FileConfiguration messagesContent = messagesFile.getContent();
