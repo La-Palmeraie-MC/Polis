@@ -16,10 +16,9 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Colorizer {
 
-  private static final Pattern STYLE_PATTERN = Pattern.compile("&([0-9a-fA-Fk-oK-OrR]|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})");
+  private static final Pattern STYLE_PATTERN = Pattern.compile("&([0-9a-fA-Fk-oK-OrR]|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})|\\\\n");
   private static final Pattern COLOR_PATTERN = Pattern.compile("^(?:[0-9a-fA-FrR]|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})$");
   private static final Pattern HEX_PATTERN   = Pattern.compile("^(?:#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6})$");
-
 
   public static Component parse(String str) {
     Component component = Component.empty();
@@ -30,7 +29,10 @@ public class Colorizer {
     while (matcher.find()) {
       component = component.append(Component.text(str.substring(0, matcher.start()), lastStyle));
 
-      if (COLOR_PATTERN.matcher(matcher.group(1)).matches()) {
+      if (matcher.group(0).equals("\\n")) {
+        component = component.append(Component.newline());
+      }
+      else if (COLOR_PATTERN.matcher(matcher.group(1)).matches()) {
         lastStyle = Style.empty().color(getColor(matcher.group(1)));
       }
       else {
@@ -44,7 +46,6 @@ public class Colorizer {
     component = component.append(Component.text(str, lastStyle));
     return component;
   }
-
 
   private static @Nullable TextColor getColor(final String str) {
     return switch (str.toLowerCase()) {
@@ -68,7 +69,6 @@ public class Colorizer {
     };
   }
 
-
   private static Style toggleDecoration(@NotNull final Style style, @NotNull final String str) {
     return switch (str.toLowerCase()) {
       case "k" -> toggleDecoration(style, TextDecoration.OBFUSCATED);
@@ -79,7 +79,6 @@ public class Colorizer {
       default -> style;
     };
   }
-
 
   private static Style toggleDecoration(@NotNull final Style style, @NotNull final TextDecoration decoration) {
     return style.decoration(decoration, style.decoration(decoration) != TextDecoration.State.TRUE);
