@@ -25,4 +25,12 @@ public class Config {
     fileContent = file.getContent();
   }
 
+  public int getWildernessChunks() {
+    return fileContent.getInt("city.wilderness-between-cities");
+  }
+
+  public int getCityCreationFee() {
+    return fileContent.getInt("city.creation-fee");
+  }
+
 }

@@ -23,8 +23,15 @@ public class CityCreationCommand extends PolisBaseCommand {
 
   @Subcommand("create")
   public void create(Player player, String name, String tag) {
+    // player.sendRawMessage("" + getEconomy().getBalance(player));
 
-    // TODO implement city creation fee
+    // checks if a player has the amount of money needed...
+    // if(getEconomy().getBalance(player) >= getConfig().getCityCreationFee()){
+    //  player.sendRawMessage("grossepute t'as pas la moula");
+    //  return;
+    // }
+    // ...and removes it if true
+    // getEconomy().withdrawPlayer(player, getConfig().getCityCreationFee());
 
     // Args Order 🔻
     // City Name > City Tag > City Origin > Owner
