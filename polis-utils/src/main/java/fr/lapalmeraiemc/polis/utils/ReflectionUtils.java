@@ -50,7 +50,8 @@ public class ReflectionUtils {
     }
   }
 
-  public static <T> Set<Class<? extends T>> getClassesExtending(@NotNull final Class<T> type, @NotNull final String path) {
+  public static <T> Set<Class<? extends T>> getClassesExtending(@NotNull final Class<T> type,
+                                                                @NotNull final String path) {
     return new Reflections(path).getSubTypesOf(type);
   }
 
@@ -77,8 +78,10 @@ public class ReflectionUtils {
     return args.toArray(Object[]::new);
   }
 
-  public static <T> Set<T> getClassInstancesExtending(@NotNull final Class<T> type, @NotNull final String path, final Object... classArgPairs) {
-    if (classArgPairs.length % 2 != 0) throw new IllegalArgumentException("Pairs of class and objects must be supplied");
+  public static <T> Set<T> getClassInstancesExtending(@NotNull final Class<T> type, @NotNull final String path,
+                                                      final Object... classArgPairs) {
+    if (classArgPairs.length % 2 != 0)
+      throw new IllegalArgumentException("Pairs of class and objects must be supplied");
 
     final Class<?>[] classes = getClassesFromPairs(classArgPairs);
     final Object[] args = getArgsFromPairs(classArgPairs);
@@ -95,11 +98,13 @@ public class ReflectionUtils {
     return instances;
   }
 
-  public static Set<Method> getMethodsAnnotatedWith(@NotNull final Class<? extends Annotation> annotation, @NotNull final String path) {
+  public static Set<Method> getMethodsAnnotatedWith(@NotNull final Class<? extends Annotation> annotation,
+                                                    @NotNull final String path) {
     return new Reflections(path, new MethodAnnotationsScanner()).getMethodsAnnotatedWith(annotation);
   }
 
-  public static boolean areMethodParamsAssignableFrom(@NotNull final Method method, @NotNull final Class<?>... classes) {
+  public static boolean areMethodParamsAssignableFrom(@NotNull final Method method,
+                                                      @NotNull final Class<?>... classes) {
     Class<?>[] params = method.getParameterTypes();
 
     if (params.length != classes.length) return false;

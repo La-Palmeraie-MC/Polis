@@ -20,18 +20,15 @@ public class FileManager {
   private final File              file;
   private       FileConfiguration fileContent;
 
-
   public FileManager(@NotNull final Plugin plugin, @NotNull final String filename) {
     this(plugin, filename, filename);
   }
-
 
   public FileManager(@NotNull final Plugin plugin, @NotNull final String resourceName, @NotNull final String saveName) {
     this.plugin = plugin;
     this.resourceName = resourceName;
     this.file = new File(plugin.getDataFolder(), saveName);
   }
-
 
   public void reloadContent() {
     fileContent = YamlConfiguration.loadConfiguration(file);
@@ -43,18 +40,15 @@ public class FileManager {
     }
   }
 
-
   public FileConfiguration getContent() {
     if (fileContent == null) reloadContent();
     return fileContent;
   }
 
-
   public @Nullable FileConfiguration getDefaults() {
     final InputStream defaultFile = plugin.getResource(resourceName);
     return defaultFile == null ? null : YamlConfiguration.loadConfiguration(new InputStreamReader(defaultFile));
   }
-
 
   public void save() {
     if (fileContent != null) {
@@ -66,7 +60,6 @@ public class FileManager {
       }
     }
   }
-
 
   public void saveDefaults() {
     if (!file.exists()) {
@@ -83,7 +76,6 @@ public class FileManager {
       save();
     }
   }
-
 
   public void clear() {
     if (fileContent != null) {

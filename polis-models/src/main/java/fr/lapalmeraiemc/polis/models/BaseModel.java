@@ -5,18 +5,12 @@ import lombok.Getter;
 import java.time.Instant;
 
 
+@Getter
 public class BaseModel {
 
-  @Getter
-  private long id;
-
-  @Getter
+  private long    id;
   private Instant whenCreated;
-
-  @Getter
   private Instant whenUpdated;
-
-  @Getter
   private boolean deleted;
 
 }

@@ -1,2 +1,4 @@
 cmd:
-  reload_success: '&eLes configurations de Polis ont été reload !'
+  reload-success: '&eLes configurations de Polis ont été reload !'
+  city-creation-fee: '&c&cTu dois avoir &l{0}&c Tokens Banane sur toi pour pouvoir créer une ville !'
+  city-created: '&6Ta ville {0} &e[&6{1}&e] a été créée.\nInvite &6{2}&e autres joueurs avec la commande &n/city invite <pseudo>&e pour pouvoir officialiser ta ville !'

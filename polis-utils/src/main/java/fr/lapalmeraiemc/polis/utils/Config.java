@@ -30,4 +30,8 @@ public class Config {
     return configContent.getInt("city.creation-fee");
   }
 
+  public int getMinCityMembers() {
+    return configContent.getInt("city.min-members");
+  }
+
 }

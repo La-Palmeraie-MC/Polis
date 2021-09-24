@@ -1,3 +1,4 @@
 city:
   wilderness-between-citys: 50
   creation-fee: 64
+  min-members: 5
