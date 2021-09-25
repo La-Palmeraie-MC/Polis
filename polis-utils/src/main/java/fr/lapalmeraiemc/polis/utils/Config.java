@@ -34,4 +34,8 @@ public class Config {
     return configContent.getInt("city.min-members");
   }
 
+  public int getConfirmationTimeout() {
+    return configContent.getInt("confirmation-timeout");
+  }
+
 }

@@ -1,7 +1,9 @@
 package fr.lapalmeraiemc.polis.enums;
 
 public enum Messages {
-  CMD_RELOAD_SUCCESS,
-  CMD_CITY_CREATION_FEE,
-  CMD_CITY_CREATED,
+  RELOAD_SUCCESS,
+  CITY_CREATION_FEE,
+  CITY_CREATION_FEE_PROMPT,
+  CITY_CREATED,
+  NO_WAITING_CONFIRM,
 }

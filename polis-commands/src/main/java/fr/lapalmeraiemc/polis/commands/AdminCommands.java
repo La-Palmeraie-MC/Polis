@@ -23,7 +23,7 @@ public class AdminCommands extends BaseCommand {
   public void reload(final CommandSender sender) {
     config.reload();
     localizer.reload();
-    sender.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CMD_RELOAD_SUCCESS));
+    sender.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.RELOAD_SUCCESS));
   }
 
 }

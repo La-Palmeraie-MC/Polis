@@ -35,31 +35,32 @@ public class CityCreationCommands extends BaseCommand {
   public void create(Player player, @Flags("quoted") String name, @Single String tag) {
 
     if (!economy.has(player, config.getCityCreationFee())) {
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CMD_CITY_CREATION_FEE,
+      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_FEE,
                                                                        Integer.toString(config.getCityCreationFee())));
       return;
     }
 
-    economy.withdrawPlayer(player, config.getCityCreationFee());
+    Confirmation.prompt(player, localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT,
+                                                              Integer.toString(config.getCityCreationFee())), () -> {
+      economy.withdrawPlayer(player, config.getCityCreationFee());
 
-    // Args Order 🔻
-    // City Name > City Tag > City Origin > Owner
-    final City city = new City(name, tag);
-    city.setOriginKey(player.getChunk().getChunkKey());
+      // Args Order 🔻
+      // City Name > City Tag > City Origin > Owner
+      final City city = new City(name, tag);
+      city.setOriginKey(player.getChunk().getChunkKey());
 
-    // Setting the command Issuer as the City Owner & add in the member list
-    final Member owner = new Member(player.getUniqueId());
-    city.setOwner(owner);
-    city.getMemberList().put(player.getUniqueId(), owner);
+      // Setting the command Issuer as the City Owner & add in the member list
+      final Member owner = new Member(player.getUniqueId());
+      city.setOwner(owner);
+      city.getMemberList().put(player.getUniqueId(), owner);
 
-    // Setting the origin chunk as the 1st claimed chunk
-    city.getClaimedChunks()
-        .put(player.getChunk().getChunkKey(), new ChunkLocation(player.getChunk().getX(), player.getChunk().getZ()));
+      // Setting the origin chunk as the 1st claimed chunk
+      city.getClaimedChunks()
+          .put(player.getChunk().getChunkKey(), new ChunkLocation(player.getChunk().getX(), player.getChunk().getZ()));
 
-    player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CMD_CITY_CREATED, city.getName(), city.getTag(),
-                                                                     Integer.toString(config.getMinCityMembers() - 1)));
-
-    // TODO send the discord message to notify moderators
+      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATED, city.getName(), city.getTag(),
+                                                                       Integer.toString(config.getMinCityMembers() - 1)));
+    });
   }
 
 }
