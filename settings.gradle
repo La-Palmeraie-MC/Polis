@@ -1,6 +1,1 @@
 rootProject.name = 'Polis'
-
-include ':polis-core'
-include ':polis-commands'
-include ':polis-models'
-include ':polis-utils'

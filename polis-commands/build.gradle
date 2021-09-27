@@ -1,4 +1,0 @@
-dependencies {
-  compileOnly project(':polis-utils')
-  compileOnly project(':polis-models')
-}

@@ -6,7 +6,6 @@ import co.aikar.commands.annotation.Dependency;
 import co.aikar.commands.annotation.Subcommand;
 import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.utils.Localizer;
-import fr.lapalmeraiemc.polis.utils.SimpleCallback;
 import fr.lapalmeraiemc.polis.utils.TimedCache;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
@@ -20,18 +19,18 @@ public class Confirmation extends BaseCommand {
 
   @Dependency private Localizer localizer;
 
-  private static final TimedCache<CommandSender, SimpleCallback> waitingConfirmation = new TimedCache<>(30);
+  private static final TimedCache<CommandSender, Runnable> waitingConfirmation = new TimedCache<>(30);
 
   @Subcommand("confirm")
   public void onConfirm(CommandSender sender) {
-    final SimpleCallback callback = waitingConfirmation.invalidate(sender);
+    final Runnable callback = waitingConfirmation.invalidate(sender);
 
     if (callback != null) callback.run();
     else sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CONFIRM));
   }
 
   public static void prompt(@NotNull final CommandSender receiver, @NotNull final Component promptText,
-                            @NotNull final SimpleCallback callback) {
+                            @NotNull final Runnable callback) {
     receiver.sendMessage(Identity.nil(), promptText, MessageType.SYSTEM);
     waitingConfirmation.put(receiver, callback);
   }

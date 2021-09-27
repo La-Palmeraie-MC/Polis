@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
+  id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -8,75 +8,54 @@ import org.apache.tools.ant.filters.ReplaceTokens
 group = 'fr.lapalmeraiemc.polis'
 version = '0.1.0'
 
-subprojects {
-  plugins.apply('java')
-  plugins.apply('com.github.johnrengelman.shadow')
+compileJava.options.encoding = 'UTF-8'
 
-  compileJava.options.encoding = 'UTF-8'
-
-  java {
-    toolchain {
-      languageVersion.set(JavaLanguageVersion.of(16))
-    }
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(16))
   }
-
-  repositories {
-    mavenCentral()
-    maven { url 'https://papermc.io/repo/repository/maven-public/' }
-    maven { url 'https://repo.aikar.co/content/groups/aikar/' }
-    maven { url 'https://jitpack.io' }
-  }
-
-  dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-    compileOnly 'org.jetbrains:annotations:22.0.0'
-    annotationProcessor 'org.jetbrains:annotations:22.0.0'
-
-    compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
-    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
-
-    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
-    implementation 'com.google.guava:guava:30.1.1-jre'
-  }
-
-  processResources {
-    filter(ReplaceTokens, tokens: ['version': rootProject.version])
-    filteringCharset = 'UTF-8'
-  }
-
-  shadowJar {
-    archiveClassifier.set('dist')
-
-    minimize()
-
-    relocate 'co.aikar.commands', 'fr.lapalmeraiemc.polis.libs.acf'
-    relocate 'co.aikar.locales', 'fr.lapalmeraiemc.polis.libs.locales'
-    relocate 'com.google', 'fr.lapalmeraiemc.polis.libs.google'
-    relocate 'org.checkerframework', 'fr.lapalmeraiemc.polis.libs.checkerframework'
-  }
-
-  build.dependsOn(shadowJar)
 }
 
-configurations {
-  childJars
+repositories {
+  mavenCentral()
+  maven { url 'https://papermc.io/repo/repository/maven-public/' }
+  maven { url 'https://repo.aikar.co/content/groups/aikar/' }
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-  subprojects.each {
-    childJars project(path: it.path, configuration: 'shadow')
-  }
+  compileOnly 'org.projectlombok:lombok:1.18.20'
+  annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+  compileOnly 'org.jetbrains:annotations:22.0.0'
+  annotationProcessor 'org.jetbrains:annotations:22.0.0'
+
+  compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+  compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+
+  implementation 'org.reflections:reflections:0.9.12'
+
+  implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+  implementation 'com.google.guava:guava:30.1.1-jre'
 }
 
-jar {
-  dependsOn configurations.childJars
-  from {
-    configurations.childJars.collect {
-      duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-      zipTree it
-    }
-  }
-  archiveFileName = 'Polis.jar'
+shadowJar {
+  archiveClassifier.set('dist')
+
+  minimize()
+
+  relocate 'co.aikar.commands', 'fr.lapalmeraiemc.polis.libs.acf'
+  relocate 'co.aikar.locales', 'fr.lapalmeraiemc.polis.libs.locales'
+  relocate 'com.google', 'fr.lapalmeraiemc.polis.libs.google'
+  relocate 'javassist', 'fr.lapalmeraiemc.polis.libs.javassist'
+  relocate 'org.checkerframework', 'fr.lapalmeraiemc.polis.libs.checkerframework'
+  relocate 'org.reflections', 'fr.lapalmeraiemc.polis.libs.reflections'
 }
+
+build.dependsOn(shadowJar)
+
+processResources {
+  filter(ReplaceTokens, tokens: ['version': rootProject.version])
+  filteringCharset = 'UTF-8'
+}
+
