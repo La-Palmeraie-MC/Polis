@@ -1,11 +1,12 @@
 package fr.lapalmeraiemc.polis.utils;
 
-import fr.lapalmeraiemc.polis.Polis;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,7 +14,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AutoSaver {
 
-  private final long period;
+  @Inject private Plugin plugin;
+  @Inject private Config config;
 
   private final Set<AutoSaveable> autoSaveableSet = new HashSet<>();
   private       BukkitTask        task;
@@ -23,9 +25,9 @@ public class AutoSaver {
   }
 
   public void enable() {
-    task = Bukkit.getScheduler().runTaskTimerAsynchronously(Polis.getInstance(), () -> {
+    task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
       autoSaveableSet.forEach(autoSaveable -> autoSaveable.save(false));
-    }, period * 20, period * 20);
+    }, config.getAutoSavePeriod() * 20, config.getAutoSavePeriod() * 20);
   }
 
   public void disable() {

@@ -4,13 +4,12 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import fr.lapalmeraiemc.polis.Polis;
 import fr.lapalmeraiemc.polis.utils.AutoSaveable;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -31,12 +30,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-@RequiredArgsConstructor
 public class MemberManager implements AutoSaveable {
 
-  private final transient Gson gson;
-  private final transient File saveFile;
-  private final transient Type gsonType = new TypeToken<Map<UUID, Map<Long, Member>>>() {}.getType();
+  private final transient Gson   gson;
+  private final transient Plugin plugin;
+  private final transient File   saveFile;
+  private final transient Type   gsonType = new TypeToken<Map<UUID, Map<Long, Member>>>() {}.getType();
+
+  public MemberManager(@NotNull final Gson gson, @NotNull final Plugin plugin) {
+    this.gson = gson;
+    this.plugin = plugin;
+    this.saveFile = new File(plugin.getDataFolder(), "members.json");
+  }
 
   private final Map<UUID, CacheValue> cache = new ConcurrentHashMap<>();
 
@@ -75,7 +80,7 @@ public class MemberManager implements AutoSaveable {
 
     // TODO add a persistence adapter
     if (saveFile.exists()) {
-      Bukkit.getScheduler().runTaskAsynchronously(Polis.getInstance(), () -> {
+      Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
         try (final FileReader reader = new FileReader(saveFile, StandardCharsets.UTF_8)) {
           final JsonElement jsonTree = gson.toJsonTree(gson.fromJson(reader, gsonType));
           final JsonObject jsonObject = jsonTree.isJsonObject() ? jsonTree.getAsJsonObject() : new JsonObject();
@@ -115,7 +120,7 @@ public class MemberManager implements AutoSaveable {
       save(membersToSave);
     }
     else {
-      Bukkit.getScheduler().runTaskAsynchronously(Polis.getInstance(), () -> save(membersToSave));
+      Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> save(membersToSave));
     }
   }
 

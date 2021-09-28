@@ -1,10 +1,10 @@
 package fr.lapalmeraiemc.polis.models;
 
 import com.google.gson.Gson;
-import fr.lapalmeraiemc.polis.Polis;
 import fr.lapalmeraiemc.polis.utils.AutoSaveable;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -19,8 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CityManager implements AutoSaveable {
 
-  private final transient Gson gson;
-  private final transient File saveFile;
+  private final transient Gson   gson;
+  private final transient Plugin plugin;
+  private final transient File   saveFile;
+
+  public CityManager(@NotNull final Gson gson, @NotNull final Plugin plugin) {
+    this.gson = gson;
+    this.plugin = plugin;
+    this.saveFile = new File(plugin.getDataFolder(), "cities.json");
+  }
 
   private       long            nextId = 0;
   private final Map<Long, City> cities = new ConcurrentHashMap<>();
@@ -48,7 +55,7 @@ public class CityManager implements AutoSaveable {
       save();
     }
     else {
-      Bukkit.getScheduler().runTaskAsynchronously(Polis.getInstance(), (Runnable) this::save);
+      Bukkit.getScheduler().runTaskAsynchronously(plugin, (Runnable) this::save);
     }
   }
 

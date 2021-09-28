@@ -3,7 +3,6 @@ package fr.lapalmeraiemc.polis.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Dependency;
 import co.aikar.commands.annotation.Flags;
 import co.aikar.commands.annotation.Single;
 import co.aikar.commands.annotation.Subcommand;
@@ -15,16 +14,17 @@ import net.kyori.adventure.identity.Identity;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
 
 @CommandAlias("city|ville")
 public class CityCreationCommands extends BaseCommand {
 
-  @Dependency private Config    config;
-  @Dependency private Localizer localizer;
-  @Dependency private Economy   economy;
-  @Dependency private Logger    logger;
+  @Inject private Config    config;
+  @Inject private Localizer localizer;
+  @Inject private Economy   economy;
+  @Inject private Logger    logger;
 
   @Subcommand("create")
   @Syntax("<nom> <tag>")

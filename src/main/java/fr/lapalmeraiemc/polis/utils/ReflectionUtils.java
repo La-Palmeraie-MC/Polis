@@ -1,5 +1,6 @@
 package fr.lapalmeraiemc.polis.utils;
 
+import com.google.inject.Injector;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -50,8 +51,7 @@ public class ReflectionUtils {
     }
   }
 
-  public static <T> Set<Class<? extends T>> getClassesExtending(@NotNull final Class<T> type,
-                                                                @NotNull final String path) {
+  public static <T> Set<Class<? extends T>> getClassesExtending(@NotNull final Class<T> type, @NotNull final String path) {
     return new Reflections(path).getSubTypesOf(type);
   }
 
@@ -80,8 +80,7 @@ public class ReflectionUtils {
 
   public static <T> Set<T> getClassInstancesExtending(@NotNull final Class<T> type, @NotNull final String path,
                                                       final Object... classArgPairs) {
-    if (classArgPairs.length % 2 != 0)
-      throw new IllegalArgumentException("Pairs of class and objects must be supplied");
+    if (classArgPairs.length % 2 != 0) throw new IllegalArgumentException("Pairs of class and objects must be supplied");
 
     final Class<?>[] classes = getClassesFromPairs(classArgPairs);
     final Object[] args = getArgsFromPairs(classArgPairs);
@@ -98,13 +97,23 @@ public class ReflectionUtils {
     return instances;
   }
 
+  public static <T> Set<T> getClassInstancesExtending(@NotNull final Injector injector, @NotNull final Class<T> type,
+                                                      @NotNull final String path) {
+    final Set<T> instances = new HashSet<>();
+    for (final Class<? extends T> clazz : getClassesExtending(type, path)) {
+      if (!Modifier.isAbstract(clazz.getModifiers()) || !Modifier.isInterface(clazz.getModifiers())) {
+        instances.add(injector.getInstance(clazz));
+      }
+    }
+    return instances;
+  }
+
   public static Set<Method> getMethodsAnnotatedWith(@NotNull final Class<? extends Annotation> annotation,
                                                     @NotNull final String path) {
     return new Reflections(path, new MethodAnnotationsScanner()).getMethodsAnnotatedWith(annotation);
   }
 
-  public static boolean areMethodParamsAssignableFrom(@NotNull final Method method,
-                                                      @NotNull final Class<?>... classes) {
+  public static boolean areMethodParamsAssignableFrom(@NotNull final Method method, @NotNull final Class<?>... classes) {
     Class<?>[] params = method.getParameterTypes();
 
     if (params.length != classes.length) return false;

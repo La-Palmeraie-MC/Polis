@@ -5,67 +5,64 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.PaperCommandManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lapalmeraiemc.polis.listeners.JoinListener;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import fr.lapalmeraiemc.polis.models.CityManager;
 import fr.lapalmeraiemc.polis.models.MemberManager;
 import fr.lapalmeraiemc.polis.utils.AutoSaver;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import fr.lapalmeraiemc.polis.utils.ReflectionUtils;
-import lombok.Getter;
-import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.Set;
 
 
 public class Polis extends JavaPlugin {
 
-  @Getter
-  @Setter
-  private static Polis instance;
-
-  private Gson gson;
-
-  private AutoSaver autoSaver = null;
-
+  private Gson          gson;
   private Config        config;
   private Localizer     localizer;
   private Economy       economy;
   private CityManager   cityManager;
   private MemberManager memberManager;
 
+  private Injector injector;
+
   private PaperCommandManager commandManager = null;
+  private AutoSaver           autoSaver      = null;
 
   @Override
   public void onEnable() {
-    setInstance(this);
-
     config = new Config(this);
     localizer = new Localizer(this);
 
-    initializeGson();
-    initializeEconomy();
-    initializeCommands();
+    setupGson();
+    setupEconomy();
 
-    cityManager = new CityManager(gson, new File(getDataFolder(), "cities.json"));
+    cityManager = new CityManager(gson, this);
+    memberManager = new MemberManager(gson, this);
     cityManager.load();
-    memberManager = new MemberManager(gson, new File(getDataFolder(), "members.json"));
     memberManager.load();
 
+    setupGuice();
+
+    registerCommands();
+    registerListeners();
+
     if (config.isAutoSaveEnabled()) {
-      autoSaver = new AutoSaver(config.getAutoSavePeriod());
+      autoSaver = injector.getInstance(AutoSaver.class);
 
       autoSaver.add(cityManager);
       autoSaver.add(memberManager);
 
       autoSaver.enable();
     }
-
-    getServer().getPluginManager().registerEvents(new JoinListener(memberManager), this);
 
     getLogger().info("Successfully enabled!");
   }
@@ -75,17 +72,17 @@ public class Polis extends JavaPlugin {
     if (commandManager != null) commandManager.unregisterCommands();
     if (autoSaver != null) autoSaver.disable();
 
-    cityManager.save(true);
-    memberManager.save(true);
+    if (cityManager != null) cityManager.save(true);
+    if (memberManager != null) memberManager.save(true);
 
     getLogger().info("Successfully disabled!");
   }
 
-  private void initializeGson() {
+  private void setupGson() {
     gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
   }
 
-  private void initializeEconomy() {
+  private void setupEconomy() {
     if (!getServer().getPluginManager().isPluginEnabled("Vault"))
       throw new RuntimeException("Vault is needed to use this plugin.");
 
@@ -96,7 +93,26 @@ public class Polis extends JavaPlugin {
     economy = economyProvider.getProvider();
   }
 
-  private void initializeCommands() {
+  private void setupGuice() {
+    final Polis polis = this;
+    injector = Guice.createInjector(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Plugin.class).toInstance(polis);
+        bind(JavaPlugin.class).toInstance(polis);
+
+        bind(Gson.class).toInstance(gson);
+        bind(Config.class).toInstance(config);
+        bind(Localizer.class).toInstance(localizer);
+        bind(Economy.class).toInstance(economy);
+
+        bind(CityManager.class).toInstance(cityManager);
+        bind(MemberManager.class).toInstance(memberManager);
+      }
+    });
+  }
+
+  private void registerCommands() {
     commandManager = new PaperCommandManager(this);
     commandManager.enableUnstableAPI("help");
 
@@ -141,12 +157,7 @@ public class Polis extends JavaPlugin {
       return builder.toString();
     });
 
-    // TODO replace ACF's dependency injection by Guice's
-    commandManager.registerDependency(Config.class, config);
-    commandManager.registerDependency(Localizer.class, localizer);
-    commandManager.registerDependency(Economy.class, economy);
-
-    final Set<BaseCommand> commands = ReflectionUtils.getClassInstancesExtending(BaseCommand.class,
+    final Set<BaseCommand> commands = ReflectionUtils.getClassInstancesExtending(injector, BaseCommand.class,
                                                                                  "fr.lapalmeraiemc.polis.commands");
 
     commands.forEach(commandManager::registerCommand);
@@ -155,6 +166,12 @@ public class Polis extends JavaPlugin {
       getLogger().warning(String.format("An error occured while executing command: %s", command.getName()));
       return false;
     });
+  }
+
+  private void registerListeners() {
+    final Set<Listener> listeners = ReflectionUtils.getClassInstancesExtending(injector, Listener.class,
+                                                                               "fr.lapalmeraiemc.polis.listeners");
+    listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
   }
 
 }
