@@ -3,4 +3,8 @@ city:
   creation-fee: 64
   min-members: 5
 
+auto-save:
+  enabled: true
+  period: 600
+
 confirmation-timeout: 30

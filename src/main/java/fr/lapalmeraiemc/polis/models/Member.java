@@ -1,25 +1,19 @@
 package fr.lapalmeraiemc.polis.models;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-
 @Getter
-@ToString
-@EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Member extends BaseModel {
-
-  public Member(@NotNull final UUID uuid) {
-    this.uuid = uuid;
-  }
+public class Member {
 
   private UUID uuid;
+  private long cityId;
+
+  Member(@NotNull final UUID uuid, final long cityId) {
+    this.uuid = uuid;
+    this.cityId = cityId;
+  }
 
 }

@@ -3,30 +3,69 @@ package fr.lapalmeraiemc.polis;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.PaperCommandManager;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import fr.lapalmeraiemc.polis.listeners.JoinListener;
+import fr.lapalmeraiemc.polis.models.CityManager;
+import fr.lapalmeraiemc.polis.models.MemberManager;
+import fr.lapalmeraiemc.polis.utils.AutoSaver;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import fr.lapalmeraiemc.polis.utils.ReflectionUtils;
+import lombok.Getter;
+import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.Set;
 
 
 public class Polis extends JavaPlugin {
 
-  private Config              config;
-  private Localizer           localizer;
+  @Getter
+  @Setter
+  private static Polis instance;
+
+  private Gson gson;
+
+  private AutoSaver autoSaver = null;
+
+  private Config        config;
+  private Localizer     localizer;
+  private Economy       economy;
+  private CityManager   cityManager;
+  private MemberManager memberManager;
+
   private PaperCommandManager commandManager = null;
-  private Economy             economy;
 
   @Override
   public void onEnable() {
+    setInstance(this);
+
     config = new Config(this);
     localizer = new Localizer(this);
 
+    initializeGson();
     initializeEconomy();
     initializeCommands();
+
+    cityManager = new CityManager(gson, new File(getDataFolder(), "cities.json"));
+    cityManager.load();
+    memberManager = new MemberManager(gson, new File(getDataFolder(), "members.json"));
+    memberManager.load();
+
+    if (config.isAutoSaveEnabled()) {
+      autoSaver = new AutoSaver(config.getAutoSavePeriod());
+
+      autoSaver.add(cityManager);
+      autoSaver.add(memberManager);
+
+      autoSaver.enable();
+    }
+
+    getServer().getPluginManager().registerEvents(new JoinListener(memberManager), this);
 
     getLogger().info("Successfully enabled!");
   }
@@ -34,8 +73,27 @@ public class Polis extends JavaPlugin {
   @Override
   public void onDisable() {
     if (commandManager != null) commandManager.unregisterCommands();
+    if (autoSaver != null) autoSaver.disable();
+
+    cityManager.save(true);
+    memberManager.save(true);
 
     getLogger().info("Successfully disabled!");
+  }
+
+  private void initializeGson() {
+    gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
+  }
+
+  private void initializeEconomy() {
+    if (!getServer().getPluginManager().isPluginEnabled("Vault"))
+      throw new RuntimeException("Vault is needed to use this plugin.");
+
+    final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
+
+    if (economyProvider == null) throw new RuntimeException("An error occured while getting Vault.");
+
+    economy = economyProvider.getProvider();
   }
 
   private void initializeCommands() {
@@ -83,6 +141,7 @@ public class Polis extends JavaPlugin {
       return builder.toString();
     });
 
+    // TODO replace ACF's dependency injection by Guice's
     commandManager.registerDependency(Config.class, config);
     commandManager.registerDependency(Localizer.class, localizer);
     commandManager.registerDependency(Economy.class, economy);
@@ -96,17 +155,6 @@ public class Polis extends JavaPlugin {
       getLogger().warning(String.format("An error occured while executing command: %s", command.getName()));
       return false;
     });
-  }
-
-  private void initializeEconomy() {
-    if (!getServer().getPluginManager().isPluginEnabled("Vault"))
-      throw new RuntimeException("Vault is needed to use this plugin.");
-
-    final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
-
-    if (economyProvider == null) throw new RuntimeException("An error occured while getting Vault.");
-
-    economy = economyProvider.getProvider();
   }
 
 }

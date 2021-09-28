@@ -38,4 +38,12 @@ public class Config {
     return configContent.getInt("confirmation-timeout");
   }
 
+  public boolean isAutoSaveEnabled() {
+    return configContent.getBoolean("auto-save.enabled");
+  }
+
+  public long getAutoSavePeriod() {
+    return configContent.getLong("auto-save.period");
+  }
+
 }
