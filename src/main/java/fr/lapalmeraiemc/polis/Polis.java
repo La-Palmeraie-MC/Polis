@@ -47,8 +47,6 @@ public class Polis extends JavaPlugin {
 
     cityManager = new CityManager(gson, this);
     memberManager = new MemberManager(gson, this);
-    cityManager.load();
-    memberManager.load();
 
     setupGuice();
 
@@ -86,7 +84,8 @@ public class Polis extends JavaPlugin {
     if (!getServer().getPluginManager().isPluginEnabled("Vault"))
       throw new RuntimeException("Vault is needed to use this plugin.");
 
-    final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
+    final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager()
+                                                                          .getRegistration(Economy.class);
 
     if (economyProvider == null) throw new RuntimeException("An error occured while getting Vault.");
 
@@ -119,10 +118,12 @@ public class Polis extends JavaPlugin {
     commandManager.getCommandConditions().addCondition(Integer.class, "limits", (c, exec, value) -> {
       if (value == null) return;
       if (c.hasConfig("min") && c.getConfigValue("min", 0) > value) {
-        throw new ConditionFailedException(String.format("The minimum accepted value is %s", c.getConfigValue("min", 0)));
+        throw new ConditionFailedException(
+            String.format("The minimum accepted value is %s", c.getConfigValue("min", 0)));
       }
       if (c.hasConfig("max") && c.getConfigValue("max", 3) < value) {
-        throw new ConditionFailedException(String.format("The maximum accepted value is %s", c.getConfigValue("max", 3)));
+        throw new ConditionFailedException(
+            String.format("The maximum accepted value is %s", c.getConfigValue("max", 3)));
       }
     });
 

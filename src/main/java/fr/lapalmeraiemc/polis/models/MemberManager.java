@@ -4,7 +4,11 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import fr.lapalmeraiemc.polis.enums.Roles;
 import fr.lapalmeraiemc.polis.utils.AutoSaveable;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Value;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -32,15 +36,23 @@ import java.util.stream.Stream;
 
 public class MemberManager implements AutoSaveable {
 
+  @Getter(AccessLevel.PACKAGE)
+  @Setter(AccessLevel.PRIVATE)
+  private static transient MemberManager instance;
+
   private final transient Gson   gson;
   private final transient Plugin plugin;
   private final transient File   saveFile;
   private final transient Type   gsonType = new TypeToken<Map<UUID, Map<Long, Member>>>() {}.getType();
 
   public MemberManager(@NotNull final Gson gson, @NotNull final Plugin plugin) {
+    setInstance(this);
+
     this.gson = gson;
     this.plugin = plugin;
     this.saveFile = new File(plugin.getDataFolder(), "members.json");
+
+    load();
   }
 
   private final Map<UUID, CacheValue> cache = new ConcurrentHashMap<>();
@@ -114,7 +126,8 @@ public class MemberManager implements AutoSaveable {
 
     final long currentTime = System.currentTimeMillis();
     cache.entrySet()
-         .removeIf(entry -> TimeUnit.MILLISECONDS.toSeconds(currentTime - entry.getValue().getPlayer().getLastSeen()) >= 600);
+         .removeIf(
+             entry -> TimeUnit.MILLISECONDS.toSeconds(currentTime - entry.getValue().getPlayer().getLastSeen()) >= 600);
 
     if (force) {
       save(membersToSave);
@@ -168,6 +181,11 @@ public class MemberManager implements AutoSaveable {
       throw new IllegalArgumentException(uuid + " is already a member of city " + cityId);
 
     return newMember;
+  }
+
+  public boolean isCityMember(@NotNull final UUID uuid) {
+    if (!cache.containsKey(uuid)) return false;
+    return cache.get(uuid).getMembershipMap().values().stream().anyMatch(member -> member.getRole() != Roles.BUILDER);
   }
 
   @Value

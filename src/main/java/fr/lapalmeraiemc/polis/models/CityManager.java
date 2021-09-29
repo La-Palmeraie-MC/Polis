@@ -1,9 +1,14 @@
 package fr.lapalmeraiemc.polis.models;
 
 import com.google.gson.Gson;
+import fr.lapalmeraiemc.polis.enums.Roles;
 import fr.lapalmeraiemc.polis.utils.AutoSaveable;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,14 +24,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CityManager implements AutoSaveable {
 
+  @Getter(AccessLevel.PACKAGE)
+  @Setter(AccessLevel.PRIVATE)
+  private transient CityManager instance;
+
   private final transient Gson   gson;
   private final transient Plugin plugin;
   private final transient File   saveFile;
 
   public CityManager(@NotNull final Gson gson, @NotNull final Plugin plugin) {
+    setInstance(this);
+
     this.gson = gson;
     this.plugin = plugin;
     this.saveFile = new File(plugin.getDataFolder(), "cities.json");
+
+    load();
   }
 
   private       long            nextId = 0;
@@ -75,12 +88,29 @@ public class CityManager implements AutoSaveable {
     return currentId;
   }
 
-  public City create(@NotNull final String name, @NotNull final String tag) {
+  public City create(@NotNull final String name, @NotNull final String tag, @NotNull final Player owner) {
     final City city = new City(getNextId());
+
     city.setName(name);
     city.setTag(tag);
+    city.setOwner(owner.getUniqueId());
+    city.addMember(owner.getUniqueId());
+
+    final Member member = MemberManager.getInstance().create(owner.getUniqueId(), city.getId());
+    member.setRole(Roles.OWNER);
+
+    // TODO claim the current chunk of the owner and mark it as the origin
+
     cities.put(city.getId(), city);
     return city;
+  }
+
+  public boolean isNameUsed(@NotNull final String name) {
+    return cities.values().stream().map(City::getName).anyMatch(cityName -> cityName.equalsIgnoreCase(name));
+  }
+
+  public boolean isTagUsed(@NotNull final String tag) {
+    return cities.values().stream().map(City::getTag).anyMatch(cityTag -> cityTag.equalsIgnoreCase(tag));
   }
 
 }

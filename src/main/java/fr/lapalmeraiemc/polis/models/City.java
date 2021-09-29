@@ -4,6 +4,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 
 @Getter
@@ -16,8 +21,19 @@ public class City {
   @Setter private String name;
   @Setter private String tag;
 
+  @Setter private UUID      owner;
+  private final   Set<UUID> members = new HashSet<>();
+
   City(final long id) {
     this.id = id;
+  }
+
+  public void addMember(@NotNull final UUID uuid) {
+    members.add(uuid);
+  }
+
+  public void removeMember(@NotNull final UUID uuid) {
+    members.remove(uuid);
   }
 
 }
