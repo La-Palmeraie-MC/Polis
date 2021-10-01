@@ -13,6 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map.Entry;
 
 
 @CommandAlias("city|ville")
@@ -20,20 +22,43 @@ public class Confirmation extends BaseCommand {
 
   @Inject private Localizer localizer;
 
-  private static final TimedCache<CommandSender, Runnable> waitingConfirmation = new TimedCache<>(30);
+  private static final TimedCache<CommandSender, Entry<Runnable, Runnable>> waitingResponse = new TimedCache<>(30);
 
   @Subcommand("confirm")
   public void onConfirm(CommandSender sender) {
-    final Runnable callback = waitingConfirmation.invalidate(sender);
+    final Entry<Runnable, Runnable> callbacks = waitingResponse.invalidate(sender);
 
-    if (callback != null) callback.run();
-    else sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CONFIRM));
+    if (callbacks != null && callbacks.getKey() != null) {
+      callbacks.getKey().run();
+    }
+    else {
+      sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CONFIRM));
+    }
+  }
+
+  @Subcommand("cancel")
+  public void onCancel(CommandSender sender) {
+    final Entry<Runnable, Runnable> callbacks = waitingResponse.invalidate(sender);
+
+    if (callbacks != null) {
+      if (callbacks.getValue() != null) {
+        callbacks.getValue().run();
+      }
+    }
+    else {
+      sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CANCEL));
+    }
   }
 
   public static void prompt(@NotNull final CommandSender receiver, @NotNull final Component promptText,
-                            @NotNull final Runnable callback) {
+                            @NotNull final Runnable onConfirm) {
+    prompt(receiver, promptText, onConfirm, null);
+  }
+
+  public static void prompt(@NotNull final CommandSender receiver, @NotNull final Component promptText,
+                            @NotNull final Runnable onConfirm, final Runnable onCancel) {
     receiver.sendMessage(Identity.nil(), promptText, MessageType.SYSTEM);
-    waitingConfirmation.put(receiver, callback);
+    waitingResponse.put(receiver, new SimpleImmutableEntry<>(onConfirm, onCancel));
   }
 
 }

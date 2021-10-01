@@ -6,3 +6,4 @@ city-creation-existing-name: '&cLe nom "&l{0}&c" est déjà utilisé par une aut
 city-creation-existing-tag: '&cLe tag [&l{0}&c] est déjà utilisé par une autre ville.'
 city-created: '&eTa ville &6{0} &e[&6{1}&e] a été créée.\nInvite &6{2}&e autres joueurs avec la commande &n/city invite <pseudo>&e pour pouvoir officialiser ta ville !'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'
+no-waiting-cancel: '&cTu n''as rien à annuler !'
