@@ -9,6 +9,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import fr.lapalmeraiemc.polis.models.CityManager;
+import fr.lapalmeraiemc.polis.models.ClaimsManager;
 import fr.lapalmeraiemc.polis.models.MemberManager;
 import fr.lapalmeraiemc.polis.utils.AutoSaver;
 import fr.lapalmeraiemc.polis.utils.Config;
@@ -25,10 +26,12 @@ import java.util.Set;
 
 public class Polis extends JavaPlugin {
 
-  private Gson          gson;
-  private Config        config;
-  private Localizer     localizer;
-  private Economy       economy;
+  private Gson      gson;
+  private Config    config;
+  private Localizer localizer;
+  private Economy   economy;
+
+  private ClaimsManager claimsManager;
   private CityManager   cityManager;
   private MemberManager memberManager;
 
@@ -45,6 +48,7 @@ public class Polis extends JavaPlugin {
     setupGson();
     setupEconomy();
 
+    claimsManager = new ClaimsManager(gson, config, this);
     cityManager = new CityManager(gson, this);
     memberManager = new MemberManager(gson, this);
 
@@ -56,6 +60,7 @@ public class Polis extends JavaPlugin {
     if (config.isAutoSaveEnabled()) {
       autoSaver = injector.getInstance(AutoSaver.class);
 
+      autoSaver.add(claimsManager);
       autoSaver.add(cityManager);
       autoSaver.add(memberManager);
 
@@ -70,6 +75,7 @@ public class Polis extends JavaPlugin {
     if (commandManager != null) commandManager.unregisterCommands();
     if (autoSaver != null) autoSaver.disable();
 
+    if (claimsManager != null) claimsManager.save(true);
     if (cityManager != null) cityManager.save(true);
     if (memberManager != null) memberManager.save(true);
 
@@ -105,6 +111,7 @@ public class Polis extends JavaPlugin {
         bind(Localizer.class).toInstance(localizer);
         bind(Economy.class).toInstance(economy);
 
+        bind(ClaimsManager.class).toInstance(claimsManager);
         bind(CityManager.class).toInstance(cityManager);
         bind(MemberManager.class).toInstance(memberManager);
       }

@@ -5,7 +5,6 @@ import fr.lapalmeraiemc.polis.enums.Roles;
 import fr.lapalmeraiemc.polis.utils.AutoSaveable;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,21 +20,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-@RequiredArgsConstructor
 public class CityManager implements AutoSaveable {
 
   @Getter(AccessLevel.PACKAGE)
   @Setter(AccessLevel.PRIVATE)
-  private transient CityManager instance;
+  private static transient CityManager instance;
 
-  private final transient Gson   gson;
-  private final transient Plugin plugin;
-  private final transient File   saveFile;
+  private final transient Gson          gson;
+  private final transient ClaimsManager claimsManager;
+  private final transient Plugin        plugin;
+  private final transient File          saveFile;
 
   public CityManager(@NotNull final Gson gson, @NotNull final Plugin plugin) {
     setInstance(this);
 
     this.gson = gson;
+    this.claimsManager = ClaimsManager.getInstance();
     this.plugin = plugin;
     this.saveFile = new File(plugin.getDataFolder(), "cities.json");
 
@@ -100,6 +100,8 @@ public class CityManager implements AutoSaveable {
     member.setRole(Roles.OWNER);
 
     // TODO claim the current chunk of the owner and mark it as the origin
+    claimsManager.claim(city.getId(), owner.getChunk());
+    claimsManager.setOrigin(city.getId(), owner.getChunk());
 
     cities.put(city.getId(), city);
     return city;

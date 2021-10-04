@@ -2,6 +2,14 @@ city:
   wilderness-between-citys: 50
   creation-fee: 64
   min-members: 5
+  max-claim-distance: 30
+
+  claim-price:
+    free-starting-claims: 50
+    base-price: 1
+    threshold-size: 10
+    multiplicator: 2
+    rounded: true
 
 auto-save:
   enabled: true

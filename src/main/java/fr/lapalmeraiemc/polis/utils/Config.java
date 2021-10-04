@@ -22,7 +22,7 @@ public class Config {
     configContent = configFile.getContent();
   }
 
-  public int getWildernessChunks() {
+  public int getWildernessBetweenCities() {
     return configContent.getInt("city.wilderness-between-cities");
   }
 
@@ -44,6 +44,42 @@ public class Config {
 
   public long getAutoSavePeriod() {
     return configContent.getLong("auto-save.period");
+  }
+
+  public int getMaxClaimDistance() {
+    return configContent.getInt("city.max-claim-distance");
+  }
+
+  public int getMaxClaimDistanceSquared() {
+    return (int) Math.round(Math.pow(getMaxClaimDistance(), 2));
+  }
+
+  public double getDistanceBetweenCityOrigins() {
+    return (double) getWildernessBetweenCities() + getMaxClaimDistance();
+  }
+
+  public double getDistanceSquaredBetweenCityOrigins() {
+    return Math.pow(getDistanceBetweenCityOrigins(), 2);
+  }
+
+  public int getFreeStartingClaimsAmount() {
+    return configContent.getInt("city.claim-price.free-starting-claims");
+  }
+
+  public double getClaimBasePrice() {
+    return configContent.getDouble("city.claim-price.base-price");
+  }
+
+  public int getClaimPriceThresholdSize() {
+    return configContent.getInt("city.claim-price.threshold-size");
+  }
+
+  public double getClaimPriceMultiplicator() {
+    return configContent.getDouble("city.claim-price.multiplicator");
+  }
+
+  public boolean isClaimPriceRounded() {
+    return configContent.getBoolean("city.claim-price.rounded");
   }
 
 }

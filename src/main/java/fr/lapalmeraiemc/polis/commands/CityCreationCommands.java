@@ -9,6 +9,7 @@ import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.models.CityManager;
+import fr.lapalmeraiemc.polis.models.ClaimsManager;
 import fr.lapalmeraiemc.polis.models.MemberManager;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
@@ -29,6 +30,7 @@ public class CityCreationCommands extends BaseCommand {
   @Inject private Logger        logger;
   @Inject private CityManager   cityManager;
   @Inject private MemberManager memberManager;
+  @Inject private ClaimsManager claimsManager;
 
   @Subcommand("create")
   @Syntax("<nom> <tag>")
@@ -54,6 +56,9 @@ public class CityCreationCommands extends BaseCommand {
       player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_EXISTING_TAG, tag));
       return;
     }
+
+    player.sendRawMessage(String.format("Tu es a %s chunk de la ville la plus proche.",
+                                        claimsManager.getDistanceToNearestOrigin(player.getChunk())));
 
     Confirmation.prompt(player, localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT,
                                                               Integer.toString(config.getCityCreationFee())), () -> {
