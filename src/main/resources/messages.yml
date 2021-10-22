@@ -1,9 +1,17 @@
 reload-success: '&eLes configurations de Polis ont été reload !'
-city-creation-fee: '&cTu dois avoir &l{0}&c Tokens Banane sur toi pour pouvoir créer une ville !'
-city-creation-fee-prompt: '&cEs-tu sûr de vouloir dépenser {0} Tokens Banane ?\nFait &n/city confirm&c pour confirmer.'
-city-creation-already-member: '&cTu es déjà dans une ville. Quittes ta ville actuelle pour en créer une autre.'
-city-creation-existing-name: '&cLe nom "&l{0}&c" est déjà utilisé par une autre ville.'
-city-creation-existing-tag: '&cLe tag [&l{0}&c] est déjà utilisé par une autre ville.'
-city-created: '&eTa ville &6{0} &e[&6{1}&e] a été créée.\nInvite &6{2}&e autres joueurs avec la commande &n/city invite <pseudo>&e pour pouvoir officialiser ta ville !'
+
+city-creation:
+  fee: '&cTu dois avoir &l{0}&c Tokens Banane sur toi pour pouvoir créer une ville !'
+  fee-prompt: '&cEs-tu sûr de vouloir dépenser {0} Tokens Banane ?\nFait &n/city confirm&c pour confirmer.'
+  already-member: '&cTu es déjà dans une ville. Quittes ta ville actuelle pour en créer une autre.'
+  existing-name: '&cLe nom "&l{0}&c" est déjà utilisé par une autre ville.'
+  existing-tag: '&cLe tag [&l{0}&c] est déjà utilisé par une autre ville.'
+  invalid-chars: '&cLes caractères suivants sont invalides : {0}'
+  long-name: '&cLe nom de ta ville est trop long. La longueur maximale d''un nom de ville est &l24&c caractères.'
+  short-name: '&cLe nom de ta ville est trop court. La longueur minimale d''un nom de ville est &l3&c caractères.'
+  tag-size: '&cLe tag de ta ville &ldoit&c faire 3 caractères de long.'
+  confirm: '&eTa ville &6{0} &e[&6{1}&e] a été créée.\nInvite &6{2}&e autres joueurs avec la commande &n/city invite <pseudo>&e pour pouvoir officialiser ta ville !'
+  cancel: '&eLa création de ta ville &6{0} &e[&6{1}&e] a été annulée.'
+
 no-waiting-confirm: '&cTu n''as rien à confirmer !'
 no-waiting-cancel: '&cTu n''as rien à annuler !'

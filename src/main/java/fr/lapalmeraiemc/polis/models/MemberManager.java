@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+@SuppressWarnings("UnstableApiUsage")
 public class MemberManager implements AutoSaveable {
 
   @Getter(AccessLevel.PACKAGE)
@@ -57,12 +58,9 @@ public class MemberManager implements AutoSaveable {
 
   private final Map<UUID, CacheValue> cache = new ConcurrentHashMap<>();
 
+  @SuppressWarnings("CodeBlock2Expr")
   public void load() {
-    final Set<String> membersIdToLoad = Bukkit.getOnlinePlayers()
-                                              .stream()
-                                              .map(Player::getUniqueId)
-                                              .map(UUID::toString)
-                                              .collect(Collectors.toSet());
+    final Set<String> membersIdToLoad = Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).map(UUID::toString).collect(Collectors.toSet());
 
     // TODO add a persistence adapter
     if (saveFile.exists()) {
@@ -71,10 +69,7 @@ public class MemberManager implements AutoSaveable {
         final JsonObject jsonObject = jsonTree.isJsonObject() ? jsonTree.getAsJsonObject() : new JsonObject();
 
         final JsonObject jsonMembersToLoad = new JsonObject();
-        jsonObject.entrySet()
-                  .stream()
-                  .filter(entry -> membersIdToLoad.contains(entry.getKey()))
-                  .forEach(entry -> jsonMembersToLoad.add(entry.getKey(), entry.getValue()));
+        jsonObject.entrySet().stream().filter(entry -> membersIdToLoad.contains(entry.getKey())).forEach(entry -> jsonMembersToLoad.add(entry.getKey(), entry.getValue()));
 
         final Map<UUID, Map<Long, Member>> membersToLoad = gson.fromJson(jsonMembersToLoad, gsonType);
         cache.putAll(membersToLoad.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
@@ -87,6 +82,7 @@ public class MemberManager implements AutoSaveable {
     }
   }
 
+  @SuppressWarnings("CodeBlock2Expr")
   public void load(@NotNull final UUID uuid) {
     if (cache.containsKey(uuid)) return;
 
@@ -99,10 +95,7 @@ public class MemberManager implements AutoSaveable {
 
           final String uuidToString = uuid.toString();
           final JsonObject jsonMembersToLoad = new JsonObject();
-          jsonObject.entrySet()
-                    .stream()
-                    .filter(entry -> uuidToString.equals(entry.getKey()))
-                    .forEach(entry -> jsonMembersToLoad.add(entry.getKey(), entry.getValue()));
+          jsonObject.entrySet().stream().filter(entry -> uuidToString.equals(entry.getKey())).forEach(entry -> jsonMembersToLoad.add(entry.getKey(), entry.getValue()));
 
           final Map<UUID, Map<Long, Member>> membersToLoad = gson.fromJson(jsonMembersToLoad, gsonType);
           cache.putAll(membersToLoad.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
@@ -116,6 +109,7 @@ public class MemberManager implements AutoSaveable {
     }
   }
 
+  @SuppressWarnings("CodeBlock2Expr")
   @Override
   public void save(final boolean force) {
     final Map<UUID, Map<Long, Member>> membersToSave = cache.entrySet()
@@ -125,9 +119,7 @@ public class MemberManager implements AutoSaveable {
                                                             }));
 
     final long currentTime = System.currentTimeMillis();
-    cache.entrySet()
-         .removeIf(
-             entry -> TimeUnit.MILLISECONDS.toSeconds(currentTime - entry.getValue().getPlayer().getLastSeen()) >= 600);
+    cache.entrySet().removeIf(entry -> TimeUnit.MILLISECONDS.toSeconds(currentTime - entry.getValue().getPlayer().getLastSeen()) >= 600);
 
     if (force) {
       save(membersToSave);
@@ -177,17 +169,17 @@ public class MemberManager implements AutoSaveable {
 
     if (cache.computeIfAbsent(uuid, key -> new CacheValue(new HashMap<>(), Bukkit.getOfflinePlayer(uuid)))
              .getMembershipMap()
-             .putIfAbsent(cityId, newMember) != null)
-      throw new IllegalArgumentException(uuid + " is already a member of city " + cityId);
+             .putIfAbsent(cityId, newMember) != null) throw new IllegalArgumentException(uuid + " is already a member of city " + cityId);
 
     return newMember;
   }
 
-  public boolean isCityMember(@NotNull final UUID uuid) {
+  public boolean isAlreadyCityMember(@NotNull final UUID uuid) {
     if (!cache.containsKey(uuid)) return false;
     return cache.get(uuid).getMembershipMap().values().stream().anyMatch(member -> member.getRole() != Roles.BUILDER);
   }
 
+  @SuppressWarnings("ClassCanBeRecord")
   @Value
   private static class CacheValue {
 

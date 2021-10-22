@@ -13,16 +13,21 @@ import fr.lapalmeraiemc.polis.models.ClaimsManager;
 import fr.lapalmeraiemc.polis.models.MemberManager;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
-import net.kyori.adventure.identity.Identity;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @CommandAlias("city|ville")
 public class CityCreationCommands extends BaseCommand {
+
+  private static final Pattern INVALID_CITY_NAME_PATTERN = Pattern.compile(
+      "[^A-Za-z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ' -]");
+  private static final Pattern INVALID_CITY_TAG_PATTERN  = Pattern.compile("[^A-Za-z0-9]");
 
   @Inject private Config        config;
   @Inject private Localizer     localizer;
@@ -36,40 +41,77 @@ public class CityCreationCommands extends BaseCommand {
   @Syntax("<nom> <tag>")
   @CommandCompletion("@nothing @nothing")
   public void create(Player player, @Flags("quoted") String name, @Single String tag) {
-    if (memberManager.isCityMember(player.getUniqueId())) {
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_ALREADY_MEMBER));
+    if (memberManager.isAlreadyCityMember(player.getUniqueId())) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_ALREADY_MEMBER);
       return;
     }
 
     if (!economy.has(player, config.getCityCreationFee())) {
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_FEE,
-                                                                       Integer.toString(config.getCityCreationFee())));
+      localizer.sendMessage(player, Messages.CITY_CREATION_FEE, config.getCityCreationFee());
       return;
     }
 
-    if (cityManager.isNameUsed(name)) {
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_EXISTING_NAME, name));
-      return;
-    }
+    if (!isNameValid(player, name) || !isTagValid(player, tag)) return;
 
-    if (cityManager.isTagUsed(tag)) {
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATION_EXISTING_TAG, tag));
-      return;
-    }
-
+    // TODO check distance to nearest city
     player.sendRawMessage(String.format("Tu es a %s chunk de la ville la plus proche.",
                                         claimsManager.getDistanceToNearestOrigin(player.getChunk())));
 
-    Confirmation.prompt(player, localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT,
-                                                              Integer.toString(config.getCityCreationFee())), () -> {
-      economy.withdrawPlayer(player, config.getCityCreationFee());
+    Confirmation.prompt(player,
+                        localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT, config.getCityCreationFee()),
+                        () -> onConfirm(player, name, tag),
+                        () -> localizer.sendMessage(player, Messages.CITY_CREATION_CANCEL, name, tag));
+  }
 
-      cityManager.create(name, tag, player);
+  private void onConfirm(Player player, String name, String tag) {
+    economy.withdrawPlayer(player, config.getCityCreationFee());
+    cityManager.create(name, tag, player);
+    localizer.sendMessage(player, Messages.CITY_CREATION_CONFIRM, name, tag, config.getMinCityMembers() - 1);
+  }
 
-      player.sendMessage(Identity.nil(), localizer.getColorizedMessage(Messages.CITY_CREATED, name, tag,
-                                                                       Integer.toString(
-                                                                           config.getMinCityMembers() - 1)));
-    });
+  private boolean isTagValid(Player player, String tag) {
+    if (cityManager.isTagUsed(tag)) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_EXISTING_TAG, tag);
+      return false;
+    }
+
+    if (tag.length() != 3) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_TAG_SIZE);
+      return false;
+    }
+
+    final Matcher matcher = INVALID_CITY_TAG_PATTERN.matcher(tag);
+    if (matcher.find()) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_INVALID_CHARS, matcher.replaceAll("&n$0&c"));
+      return false;
+    }
+
+    return true;
+  }
+
+  private boolean isNameValid(Player player, String name) {
+    if (cityManager.isNameUsed(name)) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_EXISTING_NAME, name);
+      return false;
+    }
+
+    if (name.length() > 24) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_LONG_NAME);
+      return false;
+    }
+
+    if (name.length() < 3) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_SHORT_NAME);
+      return false;
+    }
+
+    final Matcher matcher = INVALID_CITY_NAME_PATTERN.matcher(name);
+    if (matcher.find()) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_INVALID_CHARS, matcher.replaceAll("&n$0&c"));
+      return false;
+    }
+
+    return true;
   }
 
 }

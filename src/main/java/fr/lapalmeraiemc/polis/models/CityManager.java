@@ -99,7 +99,6 @@ public class CityManager implements AutoSaveable {
     final Member member = MemberManager.getInstance().create(owner.getUniqueId(), city.getId());
     member.setRole(Roles.OWNER);
 
-    // TODO claim the current chunk of the owner and mark it as the origin
     claimsManager.claim(city.getId(), owner.getChunk());
     claimsManager.setOrigin(city.getId(), owner.getChunk());
 

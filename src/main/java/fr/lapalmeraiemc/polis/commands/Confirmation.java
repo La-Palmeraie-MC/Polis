@@ -4,13 +4,14 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Subcommand;
 import fr.lapalmeraiemc.polis.enums.Messages;
+import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import fr.lapalmeraiemc.polis.utils.TimedCache;
-import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -22,7 +23,9 @@ public class Confirmation extends BaseCommand {
 
   @Inject private Localizer localizer;
 
-  private static final TimedCache<CommandSender, Entry<Runnable, Runnable>> waitingResponse = new TimedCache<>(30);
+  // TODO use caffeine for better time based eviction
+  private static final TimedCache<CommandSender, Entry<Runnable, Runnable>> waitingResponse = new TimedCache<>(
+      Config.getInstance().getConfirmationTimeout());
 
   @Subcommand("confirm")
   public void onConfirm(CommandSender sender) {
@@ -32,7 +35,7 @@ public class Confirmation extends BaseCommand {
       callbacks.getKey().run();
     }
     else {
-      sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CONFIRM));
+      localizer.sendMessage(sender, Messages.NO_WAITING_CONFIRM);
     }
   }
 
@@ -46,7 +49,7 @@ public class Confirmation extends BaseCommand {
       }
     }
     else {
-      sender.sendMessage(localizer.getColorizedMessage(Messages.NO_WAITING_CANCEL));
+      localizer.sendMessage(sender, Messages.NO_WAITING_CANCEL);
     }
   }
 
@@ -56,8 +59,8 @@ public class Confirmation extends BaseCommand {
   }
 
   public static void prompt(@NotNull final CommandSender receiver, @NotNull final Component promptText,
-                            @NotNull final Runnable onConfirm, final Runnable onCancel) {
-    receiver.sendMessage(Identity.nil(), promptText, MessageType.SYSTEM);
+                            @NotNull final Runnable onConfirm, @Nullable final Runnable onCancel) {
+    receiver.sendMessage(Identity.nil(), promptText);
     waitingResponse.put(receiver, new SimpleImmutableEntry<>(onConfirm, onCancel));
   }
 

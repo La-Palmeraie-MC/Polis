@@ -21,8 +21,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Set;
-
 
 public class Polis extends JavaPlugin {
 
@@ -137,7 +135,7 @@ public class Polis extends JavaPlugin {
     commandManager.getCommandContexts().registerContext(String.class, ctx -> {
       if (!ctx.hasFlag("quoted") || !ctx.getFirstArg().startsWith("\"")) return ctx.popFirstArg();
 
-      Integer end = null;
+      int end = -1;
       for (int i = 0; i < ctx.getArgs().size(); i++) {
         if ((ctx.getArgs().get(i).endsWith("\"") && (i != 0 || ctx.getArgs().get(i).length() > 1))) {
           end = i;
@@ -145,7 +143,7 @@ public class Polis extends JavaPlugin {
         }
       }
 
-      if (end == null) return ctx.popFirstArg();
+      if (end == -1) return ctx.popFirstArg();
 
       final StringBuilder builder = new StringBuilder();
       for (int i = 0; i <= end; i++) {
@@ -165,10 +163,8 @@ public class Polis extends JavaPlugin {
       return builder.toString();
     });
 
-    final Set<BaseCommand> commands = ReflectionUtils.getClassInstancesExtending(injector, BaseCommand.class,
-                                                                                 "fr.lapalmeraiemc.polis.commands");
-
-    commands.forEach(commandManager::registerCommand);
+    ReflectionUtils.getClassInstancesExtending(injector, BaseCommand.class, "fr.lapalmeraiemc.polis.commands")
+                   .forEach(commandManager::registerCommand);
 
     commandManager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
       getLogger().warning(String.format("An error occured while executing command: %s", command.getName()));
@@ -177,9 +173,8 @@ public class Polis extends JavaPlugin {
   }
 
   private void registerListeners() {
-    final Set<Listener> listeners = ReflectionUtils.getClassInstancesExtending(injector, Listener.class,
-                                                                               "fr.lapalmeraiemc.polis.listeners");
-    listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
+    ReflectionUtils.getClassInstancesExtending(injector, Listener.class, "fr.lapalmeraiemc.polis.listeners")
+                   .forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
   }
 
 }
