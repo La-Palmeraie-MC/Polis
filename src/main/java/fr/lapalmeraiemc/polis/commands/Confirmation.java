@@ -6,7 +6,8 @@ import co.aikar.commands.annotation.Subcommand;
 import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
-import fr.lapalmeraiemc.polis.utils.TimedCache;
+import fr.lapalmeraiemc.polis.utils.cache.TimedCache;
+import fr.lapalmeraiemc.polis.utils.cache.TimedCacheBuilder;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 
 @CommandAlias("city|ville")
@@ -23,13 +25,24 @@ public class Confirmation extends BaseCommand {
 
   @Inject private Localizer localizer;
 
-  // TODO use caffeine for better time based eviction
-  private static final TimedCache<CommandSender, Entry<Runnable, Runnable>> waitingResponse = new TimedCache<>(
-      Config.getInstance().getConfirmationTimeout());
+  private static final TimedCache<CommandSender, Entry<Runnable, Runnable>> waitingResponse;
+
+
+  static {
+    final TimedCacheBuilder<CommandSender, Entry<Runnable, Runnable>> cacheBuilder = new TimedCacheBuilder<>();
+    waitingResponse = cacheBuilder.expiresAfterWrite(Config.getInstance().getConfirmationTimeout(), TimeUnit.SECONDS)
+                                  .weakKeys()
+                                  .removalListener((key, value, wasEvicted) -> {
+                                    if (wasEvicted && key != null && value != null) value.getValue().run();
+                                  })
+                                  .build();
+  }
+
 
   @Subcommand("confirm")
   public void onConfirm(CommandSender sender) {
-    final Entry<Runnable, Runnable> callbacks = waitingResponse.invalidate(sender);
+    final Entry<Runnable, Runnable> callbacks = waitingResponse.get(sender);
+    waitingResponse.invalidate(sender);
 
     if (callbacks != null && callbacks.getKey() != null) {
       callbacks.getKey().run();
@@ -41,7 +54,8 @@ public class Confirmation extends BaseCommand {
 
   @Subcommand("cancel")
   public void onCancel(CommandSender sender) {
-    final Entry<Runnable, Runnable> callbacks = waitingResponse.invalidate(sender);
+    final Entry<Runnable, Runnable> callbacks = waitingResponse.get(sender);
+    waitingResponse.invalidate(sender);
 
     if (callbacks != null) {
       if (callbacks.getValue() != null) {

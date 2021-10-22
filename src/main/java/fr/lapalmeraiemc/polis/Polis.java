@@ -15,6 +15,9 @@ import fr.lapalmeraiemc.polis.utils.AutoSaver;
 import fr.lapalmeraiemc.polis.utils.Config;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import fr.lapalmeraiemc.polis.utils.ReflectionUtils;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -23,6 +26,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class Polis extends JavaPlugin {
+
+  @Getter
+  @Setter(AccessLevel.PRIVATE)
+  private static Polis instance;
 
   private Gson      gson;
   private Config    config;
@@ -40,6 +47,8 @@ public class Polis extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    setInstance(this);
+
     config = new Config(this);
     localizer = new Localizer(this);
 
@@ -76,6 +85,8 @@ public class Polis extends JavaPlugin {
     if (claimsManager != null) claimsManager.save(true);
     if (cityManager != null) cityManager.save(true);
     if (memberManager != null) memberManager.save(true);
+
+    getServer().getScheduler().cancelTasks(this);
 
     getLogger().info("Successfully disabled!");
   }
