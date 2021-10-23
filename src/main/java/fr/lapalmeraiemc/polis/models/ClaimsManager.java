@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,8 +99,7 @@ public class ClaimsManager implements AutoSaveable {
                   .filter(entry -> worldUuid.equals(entry.getKey()))
                   .flatMap(entry -> entry.getValue().values().parallelStream())
                   .map(chunk -> chunk.distanceSquared(chunkX, chunkZ))
-                  .min(Comparator.naturalOrder())
-                  .orElse(Double.POSITIVE_INFINITY);
+                  .min(Comparator.naturalOrder()).orElse(Double.POSITIVE_INFINITY);
   }
 
   public double getDistanceToNearestOrigin(@NotNull final Chunk chunk) {
@@ -108,6 +108,21 @@ public class ClaimsManager implements AutoSaveable {
 
   public double getDistanceToNearestOrigin(@NotNull final UUID worldUuid, final int chunkX, final int chunkZ) {
     return Math.sqrt(getDistanceSquaredToNearestOrigin(worldUuid, chunkX, chunkZ));
+  }
+
+  public City getNearestCity(@NotNull final Chunk chunk) {
+    return getNearestCity(chunk.getWorld().getUID(), chunk.getX(), chunk.getZ());
+  }
+
+  public City getNearestCity(@NotNull final UUID worldUuid, final int chunkX, final int chunkZ) {
+    return origins.entrySet()
+                  .parallelStream()
+                  .filter(entry -> worldUuid.equals(entry.getKey()))
+                  .flatMap(entry -> entry.getValue().entrySet().parallelStream())
+                  .min(Comparator.comparingDouble(o -> o.getValue().distanceSquared(chunkX, chunkZ)))
+                  .map(Entry::getKey)
+                  .map(CityManager.getInstance()::getById)
+                  .orElse(null);
   }
 
   public void setOrigin(final long cityId, @NotNull final Chunk chunk) {

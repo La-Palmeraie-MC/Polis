@@ -114,4 +114,8 @@ public class CityManager implements AutoSaveable {
     return cities.values().stream().map(City::getTag).anyMatch(cityTag -> cityTag.equalsIgnoreCase(tag));
   }
 
+  public City getById(final long id) {
+    return cities.get(id);
+  }
+
 }

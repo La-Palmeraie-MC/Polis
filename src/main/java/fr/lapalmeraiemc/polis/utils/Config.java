@@ -26,8 +26,8 @@ public class Config {
   }
 
   public void reload() {
-    configFile.saveDefaults();
     configFile.reloadContent();
+    configFile.saveDefaults();
     configContent = configFile.getContent();
   }
 

@@ -12,6 +12,7 @@ city-creation:
   tag-size: '&cLe tag de ta ville &ldoit&c faire 3 caractères de long.'
   confirm: '&eTa ville &6{0} &e[&6{1}&e] a été créée.\nInvite &6{2}&e autres joueurs avec la commande &n/city invite <pseudo>&e pour pouvoir officialiser ta ville !'
   cancel: '&eLa création de ta ville &6{0} &e[&6{1}&e] a été annulée.'
+  too-close: '&cTu es trop proche de &l{0}&c [&l{1}&c] pour créer ta ville.'
 
 no-waiting-confirm: '&cTu n''as rien à confirmer !'
 no-waiting-cancel: '&cTu n''as rien à annuler !'

@@ -46,8 +46,8 @@ public class Localizer {
 
   public void reload() {
     messages.clear();
-    messagesFile.saveDefaults();
     messagesFile.reloadContent();
+    messagesFile.saveDefaults();
 
     final FileConfiguration messagesContent = messagesFile.getContent();
     final Set<String> messageKeys = Arrays.stream(Messages.values())

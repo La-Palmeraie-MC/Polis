@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Single;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import fr.lapalmeraiemc.polis.enums.Messages;
+import fr.lapalmeraiemc.polis.models.City;
 import fr.lapalmeraiemc.polis.models.CityManager;
 import fr.lapalmeraiemc.polis.models.ClaimsManager;
 import fr.lapalmeraiemc.polis.models.MemberManager;
@@ -53,9 +54,12 @@ public class CityCreationCommands extends BaseCommand {
 
     if (!isNameValid(player, name) || !isTagValid(player, tag)) return;
 
-    // TODO check distance to nearest city
-    player.sendRawMessage(String.format("Tu es a %s chunk de la ville la plus proche.",
-                                        claimsManager.getDistanceToNearestOrigin(player.getChunk())));
+    final double distance = claimsManager.getDistanceToNearestOrigin(player.getChunk());
+    final City nearestCity = claimsManager.getNearestCity(player.getChunk());
+    if (distance < config.getMaxClaimDistance() + config.getWildernessBetweenCities() && nearestCity != null) {
+      localizer.sendMessage(player, Messages.CITY_CREATION_TOO_CLOSE, nearestCity.getName(), nearestCity.getTag());
+      return;
+    }
 
     Confirmation.prompt(player,
                         localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT, config.getCityCreationFee()),
