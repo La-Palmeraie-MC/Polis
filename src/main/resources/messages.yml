@@ -14,5 +14,12 @@ city-creation:
   cancel: '&eLa création de ta ville &6{0} &e[&6{1}&e] a été annulée.'
   too-close: '&cTu es trop proche de &l{0}&c [&l{1}&c] pour créer ta ville.'
 
+city-edit:
+  origin-too-close: '&cL''origine spécifiée est trop proche d''une autre ville. Eloigne-toi des villes alentours, et réessaie.'
+  origin-not-claimed: '&cLe chunk dans lequel tu te trouves n''appartient pas encore à ta ville. Claime le, puis réessaie.'
+  origin-already-claimed: '&cLe chunk dans lequel tu te trouves appartient déjà à une autre ville.'
+  origin-successfully-edited: '&cL''origine de ta ville a été modifiée !'
+
+no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'
 no-waiting-cancel: '&cTu n''as rien à annuler !'

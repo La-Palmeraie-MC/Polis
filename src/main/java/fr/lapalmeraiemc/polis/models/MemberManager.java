@@ -165,6 +165,7 @@ public class MemberManager implements AutoSaveable {
   }
 
   public Member create(@NotNull final UUID uuid, final long cityId) {
+    load(uuid);
     final Member newMember = new Member(uuid, cityId);
 
     if (cache.computeIfAbsent(uuid, key -> new CacheValue(new HashMap<>(), Bukkit.getOfflinePlayer(uuid)))
@@ -175,8 +176,22 @@ public class MemberManager implements AutoSaveable {
   }
 
   public boolean isAlreadyCityMember(@NotNull final UUID uuid) {
+    load(uuid);
     if (!cache.containsKey(uuid)) return false;
-    return cache.get(uuid).getMembershipMap().values().stream().anyMatch(member -> member.getRole() != Roles.BUILDER);
+    return cache.get(uuid).getMembershipMap().values().stream().anyMatch(member -> member.getRole() != Roles.HELPER);
+  }
+
+  public Member get(@NotNull final UUID uuid, final long cityId) {
+    load(uuid);
+    if (!cache.containsKey(uuid)) return null;
+    return cache.get(uuid).getMembershipMap().get(cityId);
+  }
+
+  public Member get(@NotNull final UUID uuid) {
+    load(uuid);
+    if(!cache.containsKey(uuid)) return null;
+    return cache.get(uuid).getMembershipMap().values().stream().filter(member -> member.getRole() != Roles.HELPER)
+                .findFirst().orElse(null);
   }
 
   @SuppressWarnings("ClassCanBeRecord")

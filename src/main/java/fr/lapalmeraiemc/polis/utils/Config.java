@@ -63,12 +63,12 @@ public class Config {
     return (int) Math.round(Math.pow(getMaxClaimDistance(), 2));
   }
 
-  public double getDistanceBetweenCityOrigins() {
+  public double getMinDistanceBetweenCityOrigins() {
     return (double) getWildernessBetweenCities() + getMaxClaimDistance();
   }
 
-  public double getDistanceSquaredBetweenCityOrigins() {
-    return Math.pow(getDistanceBetweenCityOrigins(), 2);
+  public double getMinDistanceSquaredBetweenCityOrigins() {
+    return Math.pow(getMinDistanceBetweenCityOrigins(), 2);
   }
 
   public int getFreeStartingClaimsAmount() {
