@@ -23,6 +23,16 @@ city-edit:
   spawn-edit-success: '&cLe nouveau spawn ta ville est validé !'
   spawn-delete-success: '&cLe spawn de ta ville a été supprimé.'
 
+city-claim:
+  not-a-city-member: '&cTu dois faire partie d''une ville pour utiliser cette commande.'
+  no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
+  chunk-already-claimed: '&cCe chunk est déjà claim.'
+  too-close: '&cTu es trop proche d''une autre ville pour claim ce chunk.'
+  too-far-away: '&c Tu es trop loin de l''origine de ta ville pour claim ce chunk.'
+  fee-prompt: '&cEs-tu sûr de vouloir dépenser {0} Tokens Banane ?\nFait &n/city confirm&c pour confirmer.'
+  cancel: '&eLe claim de ce(s) chunk(s) a été annulé.'
+  confirm: '&eLe(s) chunk(s) a(ont) bien été claim !'
+
 no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'
 no-waiting-cancel: '&cTu n''as rien à annuler !'
