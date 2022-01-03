@@ -2,32 +2,38 @@ package fr.lapalmeraiemc.polis.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.Values;
 import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.enums.Roles;
+import fr.lapalmeraiemc.polis.models.City;
+import fr.lapalmeraiemc.polis.models.CityManager;
 import fr.lapalmeraiemc.polis.models.ClaimsManager;
 import fr.lapalmeraiemc.polis.models.Member;
 import fr.lapalmeraiemc.polis.models.MemberManager;
 import fr.lapalmeraiemc.polis.utils.Localizer;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import fr.lapalmeraiemc.polis.utils.Config;
 
 import javax.inject.Inject;
-import java.nio.file.ClosedFileSystemException;
+import java.util.Objects;
 
 
 @CommandAlias("city|ville")
-public class OriginEditCommand extends BaseCommand {
+public class CityEditCommands extends BaseCommand {
 
   @Inject private Config        config;
   @Inject private MemberManager memberManager;
   @Inject private Localizer     localizer;
   @Inject private ClaimsManager claimsManager;
+  @Inject private CityManager   cityManager;
 
   @Subcommand("edit origin")
   public void editOrigin(Player player) {
-    // throw new UnsupportedOperationException();
+
     Member member = memberManager.get(player.getUniqueId());
     Chunk chunkToUse = player.getChunk();
 
@@ -60,4 +66,30 @@ public class OriginEditCommand extends BaseCommand {
     localizer.sendMessage(player, Messages.CITY_EDIT_ORIGIN_SUCCESSFULLY_EDITED);
   }
 
+  @Subcommand("edit spawn")
+  @CommandCompletion("set|remove")
+  public void editSpawn(Player player, @Values("set|remove") String mode){
+    Member member = memberManager.get(player.getUniqueId());
+
+    // check if the commandIssuer is authorized to cast command
+    if(member == null || member.getRole() != Roles.OWNER){
+      localizer.sendMessage(player, Messages.NO_PERMISSION);
+      return;
+    }
+
+    if(Objects.equals(mode, "set")){
+      Location newSpawn = player.getLocation();
+      City city = cityManager.getById(member.getCityId());
+      city.setSpawn(newSpawn);
+      localizer.sendMessage(player, Messages.CITY_EDIT_SPAWN_EDIT_SUCCESS);
+    }
+    if(Objects.equals(mode, "remove")){
+      City city = cityManager.getById(member.getCityId());
+      city.setSpawn(null);
+      localizer.sendMessage(player, Messages.CITY_EDIT_SPAWN_DELETE_SUCCESS);
+    }
+    else{
+      localizer.sendMessage(player, Messages.CITY_EDIT_SPAWN_UNKNOWN_MODE);
+    }
+  }
 }

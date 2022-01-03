@@ -5,6 +5,7 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.PaperCommandManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -23,6 +24,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.lang.reflect.ParameterizedType;
 
 
 public class Polis extends JavaPlugin {
@@ -92,7 +95,16 @@ public class Polis extends JavaPlugin {
   }
 
   private void setupGson() {
-    gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().enableComplexMapKeySerialization().create();
+    final GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
+
+    ReflectionUtils.getClassInstancesExtending(TypeAdapter.class, "fr.lapalmeraiemc.polis.adapters").forEach(adapter -> {
+      if (adapter.getClass().getGenericSuperclass() instanceof ParameterizedType type &&
+          type.getActualTypeArguments()[0] instanceof Class<?> clazz) {
+        builder.registerTypeAdapter(clazz, adapter);
+      }
+    });
+
+    gson = builder.create();
   }
 
   private void setupEconomy() {

@@ -19,6 +19,9 @@ city-edit:
   origin-not-claimed: '&cLe chunk dans lequel tu te trouves n''appartient pas encore à ta ville. Claime le, puis réessaie.'
   origin-already-claimed: '&cLe chunk dans lequel tu te trouves appartient déjà à une autre ville.'
   origin-successfully-edited: '&cL''origine de ta ville a été modifiée !'
+  spawn-unknown-mode: '&cLe mode choisi n''est pas valide.'
+  spawn-edit-success: '&cLe nouveau spawn ta ville est validé !'
+  spawn-delete-success: '&cLe spawn de ta ville a été supprimé.'
 
 no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'

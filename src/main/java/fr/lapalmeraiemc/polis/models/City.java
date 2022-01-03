@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -23,6 +24,8 @@ public class City {
 
   @Setter private UUID      owner;
   private final   Set<UUID> members = new HashSet<>();
+
+  @Setter private Location spawn;
 
   City(final long id) {
     this.id = id;
