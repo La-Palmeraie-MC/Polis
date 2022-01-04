@@ -32,6 +32,7 @@ city-claim:
   fee-prompt: '&cEs-tu sûr de vouloir dépenser {0} Tokens Banane ?\nFait &n/city confirm&c pour confirmer.'
   cancel: '&eLe claim de ce(s) chunk(s) a été annulé.'
   confirm: '&eLe(s) chunk(s) a(ont) bien été claim !'
+  fee: '&cTu dois avoir &l{0}&c Tokens Banane sur toi pour pouvoir créer une ville !'
 
 no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'

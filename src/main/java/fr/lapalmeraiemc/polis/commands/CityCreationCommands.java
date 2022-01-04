@@ -63,7 +63,13 @@ public class CityCreationCommands extends BaseCommand {
 
     Confirmation.prompt(player,
                         localizer.getColorizedMessage(Messages.CITY_CREATION_FEE_PROMPT, config.getCityCreationFee()),
-                        () -> onConfirm(player, name, tag),
+                        () -> {
+                        if (!economy.has(player, config.getCityCreationFee())) {
+                          localizer.sendMessage(player, Messages.CITY_CREATION_FEE, config.getCityCreationFee());
+                          return;
+                        }
+                        onConfirm(player, name, tag);
+                        },
                         () -> localizer.sendMessage(player, Messages.CITY_CREATION_CANCEL, name, tag));
   }
 

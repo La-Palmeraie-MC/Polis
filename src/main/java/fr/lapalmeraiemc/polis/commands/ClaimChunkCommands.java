@@ -30,8 +30,8 @@ public class ClaimChunkCommands extends BaseCommand {
   @Inject private Economy       economy;
 
   @Subcommand("claim")
-  @CommandCompletion("single|square|circle|auto")
-  public void claim(Player player, @Values("single|square|circle|auto") String mode) {
+  @CommandCompletion("|square|circle|auto")
+  public void claim(Player player, @Values("|square|circle|auto") String mode, String radius) {
 
     boolean isACityMember = memberManager.isAlreadyCityMember(player.getUniqueId());
     if(!isACityMember){
@@ -45,7 +45,7 @@ public class ClaimChunkCommands extends BaseCommand {
       return;
     }
 
-    if(Objects.equals(mode, "single")){
+    if(mode.isBlank()){
       Chunk chunkToClaim = player.getChunk();
       if(claimsManager.hasChunkBeenClaimed(chunkToClaim)){
         localizer.sendMessage(player, Messages.CITY_CLAIM_CHUNK_ALREADY_CLAIMED);
@@ -73,17 +73,23 @@ public class ClaimChunkCommands extends BaseCommand {
 
       Confirmation.prompt(player,
                           localizer.getColorizedMessage(Messages.CITY_CLAIM_FEE_PROMPT, claimPrice),
-                          () -> onConfirmSingle(player, claimPrice, memberCityID, chunkToClaim),
+                          () -> {
+                            if(!economy.has(player, claimPrice)){
+                              localizer.sendMessage(player, Messages.CITY_CLAIM_FEE, claimPrice);
+                              return;
+                            }
+                            onConfirmSingle(player, claimPrice, memberCityID, chunkToClaim);
+                          },
                           () -> localizer.sendMessage(player, Messages.CITY_CLAIM_CANCEL));
 
     }
-    if(Objects.equals(mode, "square")){
+    if(mode.equals("square")){
       throw new UnsupportedOperationException();
     }
-    if(Objects.equals(mode, "circle")){
+    if(mode.equals("circle")){
       throw new UnsupportedOperationException();
     }
-    if(Objects.equals(mode, "auto")){
+    if(mode.equals("auto")){
       throw new UnsupportedOperationException();
     }
   }

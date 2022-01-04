@@ -77,13 +77,13 @@ public class CityEditCommands extends BaseCommand {
       return;
     }
 
-    if(Objects.equals(mode, "set")){
+    if(mode.equals("set")){
       Location newSpawn = player.getLocation();
       City city = cityManager.getById(member.getCityId());
       city.setSpawn(newSpawn);
       localizer.sendMessage(player, Messages.CITY_EDIT_SPAWN_EDIT_SUCCESS);
     }
-    if(Objects.equals(mode, "remove")){
+    if(mode.equals("remove")){
       City city = cityManager.getById(member.getCityId());
       city.setSpawn(null);
       localizer.sendMessage(player, Messages.CITY_EDIT_SPAWN_DELETE_SUCCESS);
