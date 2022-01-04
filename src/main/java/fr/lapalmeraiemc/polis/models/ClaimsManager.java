@@ -204,12 +204,13 @@ public class ClaimsManager implements AutoSaveable {
   }
 
   public boolean hasChunkBeenClaimed(@NotNull final Chunk chunk){
-    long chunkKey = chunk.getChunkKey();
-    UUID worldUUID = chunk.getWorld().getUID();
+    return hasChunkBeenClaimed(chunk.getWorld().getUID(), chunk.getChunkKey());
+  }
 
+  public boolean hasChunkBeenClaimed(@NotNull final UUID uuid, final long chunkKey){
     // check if the worldUUID has already been registered. If not, return false.
-    if(claims.containsKey(worldUUID)){
-      return claims.get(worldUUID).containsKey(chunkKey);
+    if(claims.containsKey(uuid)){
+      return claims.get(uuid).containsKey(chunkKey);
     }
     else return false;
   }
