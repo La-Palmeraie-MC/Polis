@@ -34,6 +34,8 @@ city-claim:
   confirm: '&eLe(s) chunk(s) a(ont) bien été claim !'
   fee: '&cTu dois avoir &l{0}&c Tokens Banane sur toi pour pouvoir claim ce(s) chunk(s) !'
   no-nearest-city: '&cIl n''y a pas de ville aux alentours. Crée une ville, et réessaie.'
+  too-close-to-another-city: '&c Tu es trop proche d''une autre ville.'
+  radius-too-large: '&cLe rayon de cette commande ne peut pas être supérieur à {0}.'
 
 no-permission: '&cTu n''as pas la permission d''effectuer cette commande.'
 no-waiting-confirm: '&cTu n''as rien à confirmer !'

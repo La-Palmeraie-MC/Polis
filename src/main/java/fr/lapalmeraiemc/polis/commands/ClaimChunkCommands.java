@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Values;
+import com.google.common.primitives.Ints;
 import fr.lapalmeraiemc.polis.enums.Messages;
 import fr.lapalmeraiemc.polis.enums.Roles;
 import fr.lapalmeraiemc.polis.models.ClaimsManager;
@@ -19,6 +20,10 @@ import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 
 @Subcommand("claim")
 @CommandAlias("city|ville")
@@ -105,7 +110,7 @@ public class ClaimChunkCommands extends BaseCommand {
     Chunk centralChunk = player.getChunk();
 
     if(radius >= config.getMinDistanceBetweenCityOrigins()){
-      //TODO localizer
+      localizer.sendMessage(player, Messages.CITY_CLAIM_RADIUS_TOO_LARGE, config.getMinDistanceBetweenCityOrigins());
       return;
     }
 
@@ -114,20 +119,46 @@ public class ClaimChunkCommands extends BaseCommand {
       return;
     }
 
-    int numberOfChunksToClaim = 0;
+    // UUID / INT / INT
+    final List<UUID> uuidList = new ArrayList<>();
+    final List<Integer> xList = new ArrayList<>();
+    final List<Integer> zList = new ArrayList<>();
+
     for(int dx = -radius; dx <= radius; dx++){
       for(int dz = -radius; dz <= radius; dz++) {
         int x = centralChunk.getX() + dx;
         int z = centralChunk.getZ() + dz;
 
-        if(claimsManager.hasChunkBeenClaimed(player.getWorld().getUID(), Chunk.getChunkKey(x,z))){
+        if (claimsManager.hasChunkBeenClaimed(player.getWorld().getUID(), Chunk.getChunkKey(x,z)) ||
+            claimsManager.getDistanceSquaredToNearestOrigin(player.getWorld().getUID(), x, z)
+            >= config.getMaxClaimDistanceSquared()){
           continue;
         }
 
-        //if(claimsManager.getDistanceSquaredToNearestOrigin(player.getWorld().getUID(), x, z) >=
-
+        uuidList.add(player.getWorld().getUID());
+        xList.add(x);
+        zList.add(z);
       }
     }
+
+    UUID[] worldUUIDToClaim = uuidList.toArray(UUID[]::new);
+    int[] arrayXToClaim = Ints.toArray(xList);
+    int[] arrayZToClaim = Ints.toArray(zList);
+
+    double price = claimsManager.getNextClaimsPrice(member.getCityId(), worldUUIDToClaim.length);
+
+    Confirmation.prompt(player,
+                        localizer.getColorizedMessage(Messages.CITY_CLAIM_FEE_PROMPT, price),
+                        () -> {
+                          if(!economy.has(player, price)){
+                            localizer.sendMessage(player, Messages.CITY_CLAIM_FEE, price);
+                            return;
+                          }
+                          onConfirmSquare(player, worldUUIDToClaim, arrayXToClaim, arrayZToClaim);
+                        },
+                        () -> localizer.sendMessage(player, Messages.CITY_CLAIM_CANCEL)
+                        );
+
   }
 
   @Subcommand("circle")
@@ -147,7 +178,7 @@ public class ClaimChunkCommands extends BaseCommand {
     Chunk centralChunk = player.getChunk();
 
     if(radius >= config.getMinDistanceBetweenCityOrigins()){
-      //TODO localizer
+      localizer.sendMessage(player, Messages.CITY_CLAIM_TOO_CLOSE_TO_ANOTHER_CITY);
       return;
     }
 
@@ -190,4 +221,7 @@ public class ClaimChunkCommands extends BaseCommand {
     localizer.sendMessage(player, Messages.CITY_CLAIM_CONFIRM);
   }
 
+  private void onConfirmSquare(Player player, UUID[] uuidList, int[] xList, int[] yList){
+
+  }
 }
